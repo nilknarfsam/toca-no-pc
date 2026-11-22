@@ -1,0 +1,95 @@
+<Window x:Class="PcAudio.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Toca no PC" Icon="Assets/TocaNoPc.ico" Width="570" MinWidth="440" MinHeight="360"
+        SizeToContent="Height" WindowStartupLocation="CenterScreen"
+        Background="#F1F5F7" Foreground="#142A37" FontFamily="Segoe UI"
+        FontSize="14" xml:lang="pt-BR" UseLayoutRounding="True"
+        Loaded="WindowLoaded" Closed="WindowClosed">
+    <Window.Resources>
+        <SolidColorBrush x:Key="MutedText" Color="#405766" />
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="14,7" />
+            <Setter Property="MinHeight" Value="34" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#CEDAE0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="16" />
+        </Style>
+    </Window.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24">
+            <TextBlock Text="Toca no PC" FontSize="28" FontWeight="SemiBold" />
+            <TextBlock Text="Ouça no PC o áudio reproduzido no celular."
+                       Foreground="{StaticResource MutedText}" Margin="0,3,0,16" TextWrapping="Wrap" />
+
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,8">
+                        <Button x:Name="RefreshButton" DockPanel.Dock="Right" Content="_Atualizar"
+                                Click="RefreshClicked" />
+                        <Label Target="{Binding ElementName=DeviceList}" Content="Ce_lulares emparelhados"
+                               FontWeight="SemiBold" Padding="0,0,8,0" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <Grid Height="92">
+                        <ListBox x:Name="DeviceList" DisplayMemberPath="Name" SelectedValuePath="Id"
+                                 SelectionChanged="SelectionChanged" BorderBrush="#CEDAE0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 AutomationProperties.Name="Celulares emparelhados">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="8,5" />
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+                        <TextBlock x:Name="ListMessage" Margin="12,8" VerticalAlignment="Center"
+                                   Foreground="{StaticResource MutedText}" TextWrapping="Wrap"
+                                   IsHitTestVisible="False" />
+                    </Grid>
+                    <Grid Margin="0,14,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock x:Name="SelectedName" FontSize="16" FontWeight="SemiBold"
+                                       Text="Nenhum celular selecionado" TextWrapping="Wrap" />
+                            <TextBlock x:Name="StatusText" Text="Desconectado"
+                                       FontWeight="SemiBold" Margin="0,3,0,0"
+                                       AutomationProperties.LiveSetting="Polite" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button x:Name="ConnectButton" Content="_Conectar" Click="ConnectClicked"
+                                    IsEnabled="False" Margin="0,0,8,0" />
+                            <Button x:Name="DisconnectButton" Content="_Desconectar" Click="DisconnectClicked"
+                                    IsEnabled="False" />
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock x:Name="StatusDetail" Margin="0,7,0,0"
+                               Foreground="{StaticResource MutedText}" TextWrapping="Wrap"
+                               AutomationProperties.LiveSetting="Polite" />
+                    <Button Content="Configurações de _Bluetooth" HorizontalAlignment="Left"
+                            Margin="0,12,0,0" Click="BluetoothSettingsClicked" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+                <StackPanel>
+                    <TextBlock Text="Gravar o áudio" FontSize="16" FontWeight="SemiBold" />
+                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0">
+                        <Run FontWeight="SemiBold" Text="Audacity" /><Run Text=" · Em Config. do áudio, escolha Windows WASAPI e a entrada (loopback) da saída do PC." />
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Margin="0,4,0,0">
+                        <Run FontWeight="SemiBold" Text="REAPER" /><Run Text=" · WASAPI, modo Shared loopback e a mesma saída. Arme uma faixa estéreo." />
+                    </TextBlock>
+                    <TextBlock Text="Desative o monitoramento da entrada. A gravação pode incluir outros sons da mesma saída."
+                               TextWrapping="Wrap" Foreground="{StaticResource MutedText}" Margin="0,6,0,0" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Window>

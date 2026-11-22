@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>TocaNoPc</AssemblyName>
+    <AssemblyTitle>Toca no PC</AssemblyTitle>
+    <Product>Toca no PC</Product>
+    <ApplicationIcon>Assets/TocaNoPc.ico</ApplicationIcon>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets/TocaNoPc.ico" />
+  </ItemGroup>
+</Project>
