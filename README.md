@@ -37,7 +37,7 @@ Também é possível iniciar pela raiz com `dotnet run`. A primeira compilação
 
 ## O que foi verificado
 
-A conexão A2DP abriu e o áudio de um celular tocou no Windows 11 durante o teste com hardware. O Audacity 4 exibiu e aceitou a entrada de loopback dos alto-falantes. Ainda falta confirmar a gravação de ponta a ponta no Audacity e no REAPER e testar a queda da conexão durante a reprodução.
+Em teste com um celular real, o usuário confirmou que conectou o aparelho, ouviu o áudio no PC e gravou um trecho com sucesso. O Audacity 4 exibiu e aceitou a entrada de loopback dos alto-falantes durante a configuração. O gravador usado no teste bem-sucedido ainda precisa ser identificado para registrar o resultado por programa.
 
 ## Documentação
 

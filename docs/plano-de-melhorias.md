@@ -1,9 +1,10 @@
 # Plano de melhorias
 
-## Prioridade 1 · Validar a gravação de ponta a ponta
+## Prioridade 1 · Completar o registro dos testes
 
-- Gravar o mesmo trecho via Bluetooth no Audacity e no REAPER e confirmar o conteúdo de cada gravação.
-- Repetir os testes de cancelar, desconectar, perder o alcance e fechar o app durante a reprodução.
+- Validado pelo usuário com um celular real. O app conectou, o áudio tocou no PC e a gravação de um trecho foi bem-sucedida.
+- Registrar o resultado por gravador, com o nome da saída usada em cada teste.
+- Registrar o comportamento ao cancelar, desconectar, perder o alcance e fechar o app durante a reprodução.
 - Registrar versão do Windows, adaptador, sistema do celular e saída do PC usada no teste.
 
 **Conclusão** · Recepção, gravação e reconexão verificadas em hardware, com os passos reproduzíveis no [guia de uso](guia-de-uso.md).

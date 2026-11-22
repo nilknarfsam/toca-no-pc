@@ -35,7 +35,7 @@ Os estados visuais são atualizados na thread da janela. Ao encerrar a sessão, 
 
 ## Validação
 
-O ambiente de desenvolvimento usado para o teste foi Windows 11 25H2, SDK do Windows 10.0.26100.0 e SDK do .NET 9.0.317. A reprodução com um celular foi confirmada pelo usuário. No Audacity 4, foi possível trocar a entrada de microfone pelo loopback dos alto-falantes.
+O ambiente de desenvolvimento usado para o teste foi Windows 11 25H2, SDK do Windows 10.0.26100.0 e SDK do .NET 9.0.317. No teste com hardware, o usuário confirmou conexão, reprodução e gravação de um trecho. O gravador usado nesse teste não foi informado. Na configuração do Audacity 4, foi possível trocar a entrada de microfone pelo loopback dos alto-falantes.
 
 Para repetir a validação:
 
