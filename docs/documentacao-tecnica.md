@@ -6,7 +6,7 @@ O Toca no PC é um aplicativo WPF em C# com alvo `net9.0-windows10.0.19041.0`. E
 
 **Fluxo de áudio** · Celular (A2DP Source) → Windows (A2DP Sink) → saída de reprodução do Windows → Audacity ou REAPER (WASAPI loopback).
 
-**Fluxo de controle** · A janela consulta `AudioPlaybackConnection.GetDeviceSelector()` e passa o seletor a `DeviceInformation.FindAllAsync()`. Ao conectar, o app chama `TryCreateFromId`, registra `StateChanged` e aguarda `StartAsync` e `OpenAsync`. O estado **Conectado** exige um resultado de sucesso e uma conexão aberta. O app mantém uma conexão por vez. [Fluxo recomendado pela Microsoft](https://learn.microsoft.com/en-us/windows/apps/develop/media-playback/enable-remote-audio-playback)
+**Fluxo de controle** · A janela inicia um `DeviceWatcher` com o seletor de `AudioPlaybackConnection.GetDeviceSelector()` para receber a lista inicial e acompanhar inclusões, alterações e remoções. O botão **Atualizar** inicia uma nova busca. Ao conectar, o app chama `TryCreateFromId`, registra `StateChanged` e aguarda `StartAsync` e `OpenAsync`. O estado **Conectado** exige um resultado de sucesso e uma conexão aberta. O app mantém uma conexão por vez. [Fluxo recomendado pela Microsoft](https://learn.microsoft.com/en-us/windows/apps/develop/media-playback/enable-remote-audio-playback)
 
 | Estado | Condição |
 | --- | --- |
@@ -15,7 +15,7 @@ O Toca no PC é um aplicativo WPF em C# com alvo `net9.0-windows10.0.19041.0`. E
 | Conectado | O Windows concluiu a abertura da conexão A2DP. |
 | Erro | Bluetooth indisponível, falha de enumeração ou falha de abertura, entre outras condições descritas na interface. |
 
-Os estados visuais são atualizados na thread da janela. Ao encerrar a sessão, o app remove o manipulador de evento e libera a conexão. Fechar a janela também solicita o cancelamento das operações pendentes. A verificação do rádio consulta o estado do adaptador e o emparelhamento é feito nas configurações do Windows.
+Os estados visuais e a lista são atualizados na thread da janela. A seleção é preservada enquanto o dispositivo aparece na lista. Se o Windows remover o celular selecionado durante uma tentativa ou sessão ativa, o app cancela a tentativa ou encerra a sessão. Fechar a janela para a busca, solicita o cancelamento das operações pendentes e libera a conexão. O emparelhamento é feito nas configurações do Windows.
 
 ## Arquivos principais
 
@@ -24,7 +24,8 @@ Os estados visuais são atualizados na thread da janela. Ao encerrar a sessão, 
 | [PcAudio.csproj](../PcAudio.csproj) | Alvo Windows, configuração WPF e metadados do executável. |
 | [App.xaml](../App.xaml) | Inicialização do aplicativo. |
 | [MainWindow.xaml](../MainWindow.xaml) | Interface, ações de conexão e ajuda rápida. |
-| [MainWindow.xaml.cs](../MainWindow.xaml.cs) | Enumeração, ciclo de vida da conexão, estados e tratamento de erros. |
+| [MainWindow.xaml.cs](../MainWindow.xaml.cs) | Ciclo de vida da conexão, estados e tratamento de erros. |
+| [MainWindow.Devices.cs](../MainWindow.Devices.cs) | Busca inicial, atualização automática da lista e parada do observador de dispositivos. |
 | [Assets/TocaNoPc.ico](../Assets/TocaNoPc.ico) | Ícone da janela e do executável. |
 
 ## Limites de integração
@@ -39,7 +40,7 @@ O ambiente de desenvolvimento usado para o teste foi Windows 11 25H2, SDK do Win
 
 Para repetir a validação:
 
-1. Compile em Release, abra o executável e confirme que a janela carrega e atualiza a lista.
+1. Compile em Release e abra o executável. Confira se a lista carrega. Com o app aberto, emparelhe uma fonte A2DP ou remova um emparelhamento de teste nas configurações do Windows e confira a mudança na lista sem clicar em **Atualizar**.
 2. Selecione o celular, conecte e confirme que o áudio reproduzido nele toca no PC.
 3. Grave um trecho em cada gravador pelo [guia de uso](guia-de-uso.md). Pause o celular e confira se o trecho gravado tem o áudio esperado.
 4. Desconecte no app, reconecte e desligue o Bluetooth no celular durante a reprodução. Confira se a sessão encerra e a janela permite conectar novamente.

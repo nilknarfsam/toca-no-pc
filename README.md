@@ -2,7 +2,7 @@
 
 Ouça no Windows o áudio de mídia do seu celular por Bluetooth. Para gravar o que está tocando, use Audacity ou REAPER com WASAPI loopback.
 
-O aplicativo usa o receptor A2DP nativo do Windows. Ele lista fontes de áudio emparelhadas, abre e encerra uma conexão por vez e mostra os estados **Desconectado**, **Conectando**, **Conectado** e **Erro**.
+O aplicativo usa o receptor A2DP nativo do Windows. Ele acompanha as fontes de áudio emparelhadas que o Windows disponibiliza, abre e encerra uma conexão por vez e mostra os estados **Desconectado**, **Conectando**, **Conectado** e **Erro**.
 
 ## Requisitos
 
@@ -29,7 +29,7 @@ Também é possível iniciar pela raiz com `dotnet run`. A primeira compilação
 ## Ouvir e gravar
 
 1. Abra **Configurações de Bluetooth** no Toca no PC e emparelhe o celular no Windows.
-2. No app, clique em **Atualizar**, selecione o celular e clique em **Conectar**.
+2. Volte ao app, selecione o celular na lista e clique em **Conectar**. O app atualiza a lista automaticamente. Use **Atualizar** se precisar reiniciar a busca.
 3. Dê play no celular e verifique se o som sai pelo PC. Use o seletor de saída de mídia do celular se precisar direcionar o áudio para o computador.
 4. No **Audacity**, selecione **Windows WASAPI** e, em **Dispositivo de gravação**, escolha a entrada **(loopback)** com o mesmo nome da saída em que escuta o celular.
 5. No **REAPER**, selecione **WASAPI → Shared loopback** e use a mesma saída em **Output device**. Arme uma faixa com entrada estéreo.

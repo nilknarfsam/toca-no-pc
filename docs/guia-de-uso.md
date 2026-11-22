@@ -5,7 +5,7 @@
 1. Ligue o Bluetooth nos dois aparelhos e mantenha aberta a tela de Bluetooth no celular.
 2. No app, clique em **Configurações de Bluetooth**. No Windows 11, use **Bluetooth e dispositivos → Adicionar dispositivo → Bluetooth**. No Windows 10, use **Dispositivos → Bluetooth e outros dispositivos → Adicionar Bluetooth ou outro dispositivo → Bluetooth**.
 3. Escolha o celular e confirme o código correspondente nos dois aparelhos, se solicitado.
-4. Volte ao app, clique em **Atualizar**, selecione o celular e clique em **Conectar**. Aguarde **Conectado**.
+4. Volte ao app e aguarde o Windows detectar o celular na lista. Selecione-o, clique em **Conectar** e aguarde **Conectado**. Se necessário, clique em **Atualizar** para iniciar outra busca.
 5. Reproduza um áudio conhecido no celular. Se o som continuar no aparelho, abra o seletor de saída de mídia da reprodução e selecione o PC, se ele aparecer. No Android, confira se **Áudio de mídia** está ativado para o PC quando essa opção existir. No iPhone, procure o PC na lista de saídas do controle de reprodução da Central de Controle. Ouça o som no PC antes de abrir o gravador.
 6. Use **Desconectar** para encerrar a recepção ou cancelar uma tentativa em andamento. Também é possível fechar a janela.
 

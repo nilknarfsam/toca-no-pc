@@ -50,6 +50,9 @@
                                    Foreground="{StaticResource MutedText}" TextWrapping="Wrap"
                                    IsHitTestVisible="False" />
                     </Grid>
+                    <TextBlock x:Name="SearchNotice" Visibility="Collapsed" Margin="0,7,0,0"
+                               Foreground="{StaticResource MutedText}" TextWrapping="Wrap"
+                               AutomationProperties.LiveSetting="Polite" />
                     <Grid Margin="0,14,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />

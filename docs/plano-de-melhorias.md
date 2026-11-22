@@ -11,7 +11,7 @@
 
 ## Prioridade 2 · Facilitar a conexão e o diagnóstico
 
-- Atualizar a lista por eventos de adição e remoção de dispositivos.
+- Implementado. A lista acompanha os eventos de adição, alteração e remoção de dispositivos enviados pelo Windows.
 - Indicar quando é preciso ligar o Bluetooth, atualizar a lista ou selecionar a entrada **(loopback)** no gravador.
 - Oferecer diagnóstico copiável com etapa da falha, código do erro e versões relevantes, sem incluir nomes ou identificadores dos dispositivos por padrão.
 

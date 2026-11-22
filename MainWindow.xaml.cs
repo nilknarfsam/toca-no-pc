@@ -14,65 +14,11 @@ public partial class MainWindow : Window
     private readonly CancellationTokenSource windowLifetime = new();
     private AudioPlaybackConnection? connection;
     private CancellationTokenSource? connectionAttempt;
-    private bool refreshing;
     private bool closed;
 
     public MainWindow()
     {
         InitializeComponent();
-    }
-
-    private async void WindowLoaded(object sender, RoutedEventArgs e) => await RefreshDevicesAsync();
-
-    private async void RefreshClicked(object sender, RoutedEventArgs e) => await RefreshDevicesAsync();
-
-    private async Task RefreshDevicesAsync()
-    {
-        refreshing = true;
-        UpdateControls();
-        var selectedId = DeviceList.SelectedValue;
-        ListMessage.Text = "Procurando celulares compatíveis…";
-        SetStatus(ConnectionStatus.Disconnected, "");
-
-        try
-        {
-            var token = windowLifetime.Token;
-            // The native selector enumerates paired A2DP source interfaces.
-            var devices = await DeviceInformation.FindAllAsync(AudioPlaybackConnection.GetDeviceSelector())
-                .AsTask(token);
-            var unavailableReason = await GetBluetoothUnavailableReasonAsync(token);
-            token.ThrowIfCancellationRequested();
-
-            var pairedDevices = devices.OrderBy(device => device.Name, StringComparer.CurrentCultureIgnoreCase)
-                .ToArray();
-            DeviceList.ItemsSource = unavailableReason is null ? pairedDevices : [];
-            DeviceList.SelectedValue = selectedId;
-            ListMessage.Text = unavailableReason ?? (pairedDevices.Length == 0
-                ? "Nenhum celular compatível encontrado. Emparelhe o celular e clique em Atualizar."
-                : "");
-            if (unavailableReason is not null)
-            {
-                SetStatus(ConnectionStatus.Error, "Confira o Bluetooth nas configurações do Windows.");
-            }
-        }
-        catch (Exception error) when (!closed)
-        {
-            DeviceList.ItemsSource = null;
-            ListMessage.Text = "Não foi possível listar os celulares.";
-            SetStatus(ConnectionStatus.Error, WithErrorCode("Confira o Bluetooth e clique em Atualizar.", error));
-        }
-        catch (Exception) when (closed)
-        {
-            // An outstanding WinRT operation may complete while the window is closing.
-        }
-        finally
-        {
-            refreshing = false;
-            if (!closed)
-            {
-                UpdateControls();
-            }
-        }
     }
 
     private async void ConnectClicked(object sender, RoutedEventArgs e)
@@ -132,7 +78,9 @@ public partial class MainWindow : Window
         catch (Exception) when (token.IsCancellationRequested)
         {
             status = ConnectionStatus.Disconnected;
-            detail = "A tentativa de conexão foi cancelada.";
+            detail = devices.ContainsKey(device.Id)
+                ? "A tentativa de conexão foi cancelada."
+                : "O celular ficou indisponível durante a conexão.";
         }
         catch (Exception error)
         {
@@ -258,6 +206,7 @@ public partial class MainWindow : Window
     private void WindowClosed(object? sender, EventArgs e)
     {
         closed = true;
+        StopDeviceWatcher();
         windowLifetime.Cancel();
         ReleaseConnection();
         windowLifetime.Dispose();
@@ -266,7 +215,7 @@ public partial class MainWindow : Window
     private void SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         SelectedName.Text = (DeviceList.SelectedItem as DeviceInformation)?.Name ?? "Nenhum celular selecionado";
-        if (!refreshing && connection is null && connectionAttempt is null)
+        if (!updatingDeviceList && connection is null && connectionAttempt is null)
         {
             SetStatus(ConnectionStatus.Disconnected, "");
         }
