@@ -27,10 +27,10 @@ Também é possível iniciar pela raiz com `dotnet run`. A primeira compilação
 Para montar um pacote Windows x64 com o runtime incluído, execute:
 
 ```powershell
-dotnet publish PcAudio.csproj -c Release -r win-x64 --self-contained true -o bin/publicacao/win-x64
+./release/New-Release.ps1
 ```
 
-Abra `TocaNoPc.exe` na pasta publicada e mantenha os arquivos juntos. O [GitHub Actions](https://github.com/nilknarfsam/toca-no-pc/actions) também compila esse pacote a cada envio ao branch principal e a cada pull request para ele.
+Execute pelo PowerShell 7. O script lê a versão do projeto e gera um ZIP na pasta [release](release/README.md), como `TocaNoPc-1.1.0-win-x64.zip`. Extraia o ZIP inteiro antes de abrir `TocaNoPc.exe`. O [GitHub Actions](https://github.com/nilknarfsam/toca-no-pc/actions) gera o mesmo ZIP como artefato a cada envio ao branch principal e a cada pull request para ele.
 
 ## Ouvir e gravar
 
