@@ -14,6 +14,7 @@ public partial class MainWindow : Window
     private readonly CancellationTokenSource windowLifetime = new();
     private AudioPlaybackConnection? connection;
     private CancellationTokenSource? connectionAttempt;
+    private string? lastDiagnostic;
     private bool closed;
 
     public MainWindow()
@@ -35,11 +36,15 @@ public partial class MainWindow : Window
         UpdateControls();
 
         var status = ConnectionStatus.Error;
+        var stage = "Verificar Bluetooth";
+        Exception? failure = null;
+        string? resultStatus = null;
         string detail;
         try
         {
             var unavailableReason = await GetBluetoothUnavailableReasonAsync(token);
             token.ThrowIfCancellationRequested();
+            stage = unavailableReason is null ? "Criar conexão de áudio" : stage;
             if (unavailableReason is not null)
             {
                 detail = unavailableReason;
@@ -50,11 +55,18 @@ public partial class MainWindow : Window
             }
             else
             {
+                stage = "Preparar conexão de áudio";
                 playback.StateChanged += PlaybackStateChanged;
                 await playback.StartAsync().AsTask(token);
                 token.ThrowIfCancellationRequested();
+                stage = "Abrir conexão de áudio";
                 var result = await playback.OpenAsync().AsTask(token);
                 token.ThrowIfCancellationRequested();
+                resultStatus = result.Status.ToString();
+                if (result.Status != AudioPlaybackConnectionOpenResultStatus.Success)
+                {
+                    failure = result.ExtendedError;
+                }
 
                 detail = result.Status switch
                 {
@@ -64,7 +76,7 @@ public partial class MainWindow : Window
                         "O celular demorou a responder. Mantenha-o próximo e tente novamente.",
                     AudioPlaybackConnectionOpenResultStatus.DeniedBySystem =>
                         "O Windows recusou a conexão. Confira o Bluetooth e o emparelhamento.",
-                    _ => WithErrorCode("Não foi possível abrir a conexão de áudio.", result.ExtendedError)
+                    _ => "Não foi possível abrir a conexão de áudio."
                 };
 
                 if (result.Status == AudioPlaybackConnectionOpenResultStatus.Success &&
@@ -84,7 +96,8 @@ public partial class MainWindow : Window
         }
         catch (Exception error)
         {
-            detail = WithErrorCode("Falha na conexão. Confira o Bluetooth e o emparelhamento.", error);
+            failure = error;
+            detail = "Falha na conexão. Confira o Bluetooth e o emparelhamento.";
         }
         finally
         {
@@ -97,7 +110,11 @@ public partial class MainWindow : Window
 
         if (!closed)
         {
-            SetStatus(status, detail);
+            if (status == ConnectionStatus.Error)
+            {
+                RecordDiagnostic(stage, detail, failure, resultStatus);
+            }
+            SetStatus(status, WithErrorCode(detail, failure));
             UpdateControls();
         }
     }
@@ -131,14 +148,16 @@ public partial class MainWindow : Window
                 if (sender.State == AudioPlaybackConnectionState.Closed)
                 {
                     ReleaseConnection();
-                    SetStatus(ConnectionStatus.Disconnected,
-                        "A conexão foi encerrada. Confira o Bluetooth nos dois aparelhos.");
+                    const string message = "A conexão foi encerrada. Confira o Bluetooth nos dois aparelhos.";
+                    RecordDiagnostic("Acompanhar conexão de áudio", message);
+                    SetStatus(ConnectionStatus.Disconnected, message);
                     UpdateControls();
                 }
             }
             catch (Exception error)
             {
                 ReleaseConnection();
+                RecordDiagnostic("Consultar conexão de áudio", "Não foi possível consultar a conexão.", error);
                 SetStatus(ConnectionStatus.Error, WithErrorCode("Não foi possível consultar a conexão.", error));
                 UpdateControls();
             }
@@ -206,6 +225,7 @@ public partial class MainWindow : Window
     private void WindowClosed(object? sender, EventArgs e)
     {
         closed = true;
+        StopWatchingAudioOutput();
         StopDeviceWatcher();
         windowLifetime.Cancel();
         ReleaseConnection();
@@ -230,10 +250,47 @@ public partial class MainWindow : Window
         }
         catch (System.ComponentModel.Win32Exception error)
         {
+            RecordDiagnostic("Abrir configurações de Bluetooth", "O Windows não abriu as configurações.", error);
             MessageBox.Show(this, WithErrorCode("Abra Configurações > Bluetooth no Windows.", error),
                 "Configurações de Bluetooth", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
+
+    private void RecordDiagnostic(string stage, string detail, Exception? error = null, string? result = null)
+    {
+        var lines = new List<string> { $"Etapa: {stage}", $"Detalhe: {detail}" };
+        if (result is not null)
+        {
+            lines.Add($"Resultado do Windows: {result}");
+        }
+        if (error is not null)
+        {
+            lines.Add($"Código: 0x{error.HResult:X8}");
+        }
+        lastDiagnostic = string.Join(Environment.NewLine, lines);
+        DiagnosticFeedback.Text = "";
+    }
+
+    private void CopyDiagnosticClicked(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Clipboard.SetText(BuildDiagnosticReport());
+            DiagnosticFeedback.Text = "Diagnóstico copiado.";
+        }
+        catch (System.Runtime.InteropServices.ExternalException)
+        {
+            DiagnosticFeedback.Text = "Não foi possível copiar. Tente novamente.";
+        }
+    }
+
+    private string BuildDiagnosticReport() => string.Join(Environment.NewLine,
+        $"Toca no PC {typeof(MainWindow).Assembly.GetName().Version}",
+        $"Windows {Environment.OSVersion.Version}",
+        $".NET {Environment.Version}",
+        $"Estado atual: {StatusText.Text}",
+        "Última ocorrência:",
+        lastDiagnostic ?? "Nenhuma ocorrência registrada.");
 
     private void UpdateControls()
     {

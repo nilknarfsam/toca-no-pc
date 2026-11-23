@@ -15,6 +15,8 @@ Se a lista estiver vazia, confirme o emparelhamento, mantenha o celular próximo
 
 Escolha no gravador a saída pela qual você ouve o celular no PC. O loopback pode gravar notificações, navegador e outros sons reproduzidos pela mesma saída. Pause outras fontes e desative o monitoramento da entrada no gravador para evitar realimentação e eco. [Como funciona o loopback WASAPI](https://learn.microsoft.com/en-us/windows/win32/coreaudio/loopback-recording)
 
+O cartão **Gravar o áudio** mostra a saída padrão de mídia do Windows. Use esse nome para localizar a entrada no gravador e confirme pelo som que você ouve. Se o Windows estiver direcionando a reprodução para outra saída, escolha no gravador aquela em que o celular realmente toca.
+
 ### Audacity 4
 
 1. Abra **Config. do áudio → Configurações do áudio**. Em **Host**, escolha **Windows WASAPI**.
@@ -35,6 +37,8 @@ O seletor de entrada do Audacity mostra as saídas com o sufixo **(loopback)**. 
 Passos conferidos na seção 3.44 do [guia do REAPER 7.86](https://dlx.reaper.fm/userguide/ReaperUserGuide786c.pdf).
 
 ## Solução de problemas
+
+Se a busca for interrompida durante **Atualizar**, a lista fica vazia até uma nova busca. Clique em **Atualizar** para tentar novamente. Em caso de falha, clique em **Copiar diagnóstico**. O texto inclui as versões, o estado atual e a última ocorrência da sessão. Nomes e IDs de celulares e saídas de áudio ficam fora do relatório.
 
 | Sintoma | O que verificar |
 | --- | --- |

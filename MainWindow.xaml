@@ -75,14 +75,22 @@
                     <TextBlock x:Name="StatusDetail" Margin="0,7,0,0"
                                Foreground="{StaticResource MutedText}" TextWrapping="Wrap"
                                AutomationProperties.LiveSetting="Polite" />
-                    <Button Content="Configurações de _Bluetooth" HorizontalAlignment="Left"
-                            Margin="0,12,0,0" Click="BluetoothSettingsClicked" />
+                    <WrapPanel Margin="0,8,0,0">
+                        <Button Content="Configurações de _Bluetooth" Margin="0,4,8,0"
+                                Click="BluetoothSettingsClicked" />
+                        <Button Content="Copiar dia_gnóstico" Margin="0,4,0,0"
+                                Click="CopyDiagnosticClicked" />
+                    </WrapPanel>
+                    <TextBlock x:Name="DiagnosticFeedback" TextWrapping="Wrap"
+                               Foreground="{StaticResource MutedText}" AutomationProperties.LiveSetting="Polite" />
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource Card}" Margin="0,12,0,0">
                 <StackPanel>
                     <TextBlock Text="Gravar o áudio" FontSize="16" FontWeight="SemiBold" />
+                    <TextBlock x:Name="DefaultAudioOutputText" Text="Consultando a saída padrão do Windows…"
+                               TextWrapping="Wrap" Margin="0,5,0,0" AutomationProperties.LiveSetting="Polite" />
                     <TextBlock TextWrapping="Wrap" Margin="0,5,0,0">
                         <Run FontWeight="SemiBold" Text="Audacity" /><Run Text=" · Em Config. do áudio, escolha Windows WASAPI e a entrada (loopback) da saída do PC." />
                     </TextBlock>

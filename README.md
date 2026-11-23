@@ -6,12 +6,10 @@ O aplicativo usa o receptor A2DP nativo do Windows. Ele acompanha as fontes de �
 
 ## Requisitos
 
-- Windows 11 ou Windows 10 a partir da versão 2004, com Bluetooth clássico e uma saída de som.
+- Windows 11 ou Windows 10 de edição compatível, com Bluetooth clássico, uma saída de som e build 19041 ou posterior para a API Bluetooth. Confira as [versões do Windows com suporte ao .NET 10](https://learn.microsoft.com/dotnet/core/install/windows).
 - Celular com suporte ao perfil de fonte A2DP.
-- SDK do .NET 9 para compilar ou .NET Desktop Runtime 9 para executar o resultado da compilação.
+- SDK do .NET 10 LTS para compilar ou .NET Desktop Runtime 10 para executar a compilação comum.
 - Audacity ou REAPER, se quiser gravar.
-
-O .NET 9 saiu de suporte. A migração para o .NET 10 LTS está prevista antes da distribuição do executável. [Ciclo de suporte do .NET](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core)
 
 ## Compilar e executar
 
@@ -21,19 +19,29 @@ Clone o repositório e execute estes comandos no PowerShell:
 git clone https://github.com/nilknarfsam/toca-no-pc.git
 cd toca-no-pc
 dotnet build -c Release
-.\bin\Release\net9.0-windows10.0.19041.0\TocaNoPc.exe
+.\bin\Release\net10.0-windows10.0.19041.0\TocaNoPc.exe
 ```
 
-Também é possível iniciar pela raiz com `dotnet run`. A primeira compilação pode baixar a referência WinRT do NuGet. O executável gerado depende do .NET Desktop Runtime 9.
+Também é possível iniciar pela raiz com `dotnet run`. A primeira compilação pode baixar a referência WinRT do NuGet. O executável gerado depende do .NET Desktop Runtime 10.
+
+Para montar um pacote Windows x64 com o runtime incluído, execute:
+
+```powershell
+dotnet publish PcAudio.csproj -c Release -r win-x64 --self-contained true -o bin/publicacao/win-x64
+```
+
+Abra `TocaNoPc.exe` na pasta publicada e mantenha os arquivos juntos. O [GitHub Actions](https://github.com/nilknarfsam/toca-no-pc/actions) também compila esse pacote a cada envio ao branch principal e a cada pull request para ele.
 
 ## Ouvir e gravar
 
 1. Abra **Configurações de Bluetooth** no Toca no PC e emparelhe o celular no Windows.
 2. Volte ao app, selecione o celular na lista e clique em **Conectar**. O app atualiza a lista automaticamente. Use **Atualizar** se precisar reiniciar a busca.
 3. Dê play no celular e verifique se o som sai pelo PC. Use o seletor de saída de mídia do celular se precisar direcionar o áudio para o computador.
-4. No **Audacity**, selecione **Windows WASAPI** e, em **Dispositivo de gravação**, escolha a entrada **(loopback)** com o mesmo nome da saída em que escuta o celular.
+4. Confira o nome em **Saída padrão do Windows** no app. No **Audacity**, selecione **Windows WASAPI** e escolha a entrada **(loopback)** da saída em que escuta o celular.
 5. No **REAPER**, selecione **WASAPI → Shared loopback** e use a mesma saída em **Output device**. Arme uma faixa com entrada estéreo.
 6. Desative o monitoramento de entrada no gravador para evitar realimentação. O loopback pode incluir notificações e outros sons da mesma saída.
+
+Se houver falha, use **Copiar diagnóstico** para obter a etapa, o código quando disponível e as versões do app e do sistema. O relatório omite nomes e IDs de dispositivos.
 
 ## O que foi verificado
 

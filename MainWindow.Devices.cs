@@ -12,7 +12,11 @@ public partial class MainWindow
     private bool refreshing;
     private bool updatingDeviceList;
 
-    private void WindowLoaded(object sender, RoutedEventArgs e) => StartDeviceWatcher();
+    private void WindowLoaded(object sender, RoutedEventArgs e)
+    {
+        StartDeviceWatcher();
+        StartWatchingAudioOutput();
+    }
 
     private void RefreshClicked(object sender, RoutedEventArgs e) => StartDeviceWatcher();
 
@@ -39,7 +43,7 @@ public partial class MainWindow
         }
         catch (Exception error)
         {
-            ReportDeviceWatcherFailure(error);
+            ReportDeviceWatcherFailure("Iniciar busca de celulares", error);
         }
     }
 
@@ -129,7 +133,7 @@ public partial class MainWindow
         });
 
     private void DeviceWatcherStopped(DeviceWatcher watcher, object args) =>
-        DispatchDeviceEvent(watcher, () => ReportDeviceWatcherFailure());
+        DispatchDeviceEvent(watcher, () => ReportDeviceWatcherFailure("Acompanhar celulares emparelhados"));
 
     private void DispatchDeviceEvent(DeviceWatcher watcher, Action handleEvent)
     {
@@ -176,6 +180,7 @@ public partial class MainWindow
             if (!closed && ReferenceEquals(deviceWatcher, watcher) && devices.Count == 0 && reason is not null)
             {
                 ListMessage.Text = reason;
+                RecordDiagnostic("Verificar Bluetooth", reason);
             }
         }
         catch (Exception error)
@@ -184,13 +189,21 @@ public partial class MainWindow
         }
     }
 
-    private void ReportDeviceWatcherFailure(Exception? error = null)
+    private void ReportDeviceWatcherFailure(string stage, Exception? error = null)
     {
+        if (refreshing)
+        {
+            devices.Clear();
+            UpdateDeviceList();
+        }
+
         StopDeviceWatcher();
         refreshing = false;
-        // Keep the last successful list available if Windows stops the watcher unexpectedly.
+        // After enumeration, the visible list and the device cache are already in sync.
         ListMessage.Text = "";
-        SearchNotice.Text = WithErrorCode("A busca foi interrompida. Use Atualizar para tentar de novo.", error);
+        const string message = "A busca foi interrompida. Use Atualizar para tentar de novo.";
+        SearchNotice.Text = WithErrorCode(message, error);
+        RecordDiagnostic(stage, message, error);
         SearchNotice.Visibility = Visibility.Visible;
         if (connection is null && connectionAttempt is null)
         {

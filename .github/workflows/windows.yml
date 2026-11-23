@@ -1,0 +1,29 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  win-x64:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '10.0.x'
+      - name: Publicar pacote x64
+        run: dotnet publish PcAudio.csproj -c Release -r win-x64 --self-contained true -o bin/publicacao/win-x64 -warnaserror
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: TocaNoPc-win-x64
+          path: bin/publicacao/win-x64/
+          if-no-files-found: error

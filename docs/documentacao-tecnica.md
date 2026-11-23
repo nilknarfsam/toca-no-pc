@@ -2,7 +2,7 @@
 
 ## Arquitetura
 
-O Toca no PC é um aplicativo WPF em C# com alvo `net9.0-windows10.0.19041.0`. Ele usa a projeção WinRT incluída no SDK para acessar `Windows.Media.Audio.AudioPlaybackConnection`. O executável desktop é carregado sem MSIX e funciona com a conta padrão do usuário. O Windows oferece a API a partir da build 19041. [Integração WinRT no desktop](https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/winrt-apis-desktop-apps) · [Referência da API](https://learn.microsoft.com/en-us/uwp/api/windows.media.audio.audioplaybackconnection?view=winrt-26100)
+O Toca no PC é um aplicativo WPF em C# com alvo `net10.0-windows10.0.19041.0`. Ele usa a projeção WinRT incluída no SDK para acessar `Windows.Media.Audio.AudioPlaybackConnection`. O executável desktop é carregado sem MSIX e funciona com a conta padrão do usuário. O Windows oferece a API a partir da build 19041. [Integração WinRT no desktop](https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/winrt-apis-desktop-apps) · [Referência da API](https://learn.microsoft.com/en-us/uwp/api/windows.media.audio.audioplaybackconnection?view=winrt-26100)
 
 **Fluxo de áudio** · Celular (A2DP Source) → Windows (A2DP Sink) → saída de reprodução do Windows → Audacity ou REAPER (WASAPI loopback).
 
@@ -17,6 +17,10 @@ O Toca no PC é um aplicativo WPF em C# com alvo `net9.0-windows10.0.19041.0`. E
 
 Os estados visuais e a lista são atualizados na thread da janela. A seleção é preservada enquanto o dispositivo aparece na lista. Se o Windows remover o celular selecionado durante uma tentativa ou sessão ativa, o app cancela a tentativa ou encerra a sessão. Fechar a janela para a busca, solicita o cancelamento das operações pendentes e libera a conexão. O emparelhamento é feito nas configurações do Windows.
 
+Se o observador falhar durante a enumeração, a janela descarta os resultados parciais e limpa a lista antes de liberar **Atualizar**. Se ele parar após concluir a enumeração, a janela conserva a última lista válida e exibe um aviso. Cada nova busca ignora os eventos pendentes da anterior.
+
+A saída exibida vem de `MediaDevice.GetDefaultAudioRenderId(AudioDeviceRole.Default)`. O app consulta o nome do dispositivo e acompanha mudanças da saída padrão. O diagnóstico copiável guarda em memória a última ocorrência da sessão e inclui versões, estado e, quando disponível, resultado WinRT e HRESULT. A saída e os identificadores de dispositivos ficam fora do relatório. [API MediaDevice](https://learn.microsoft.com/en-us/uwp/api/windows.media.devices.mediadevice)
+
 ## Arquivos principais
 
 | Arquivo | Responsabilidade |
@@ -26,6 +30,8 @@ Os estados visuais e a lista são atualizados na thread da janela. A seleção �
 | [MainWindow.xaml](../MainWindow.xaml) | Interface, ações de conexão e ajuda rápida. |
 | [MainWindow.xaml.cs](../MainWindow.xaml.cs) | Ciclo de vida da conexão, estados e tratamento de erros. |
 | [MainWindow.Devices.cs](../MainWindow.Devices.cs) | Busca inicial, atualização automática da lista e parada do observador de dispositivos. |
+| [MainWindow.AudioOutput.cs](../MainWindow.AudioOutput.cs) | Consulta e acompanhamento da saída padrão de mídia. |
+| [windows.yml](../.github/workflows/windows.yml) | Compilação e pacote autossuficiente Windows x64 no GitHub Actions. |
 | [Assets/TocaNoPc.ico](../Assets/TocaNoPc.ico) | Ícone da janela e do executável. |
 
 ## Limites de integração
@@ -36,7 +42,9 @@ Os estados visuais e a lista são atualizados na thread da janela. A seleção �
 
 ## Validação
 
-O ambiente de desenvolvimento usado para o teste foi Windows 11 25H2, SDK do Windows 10.0.26100.0 e SDK do .NET 9.0.317. No teste com hardware, o usuário confirmou conexão, reprodução e gravação de um trecho. O gravador usado nesse teste não foi informado. Na configuração do Audacity 4, foi possível trocar a entrada de microfone pelo loopback dos alto-falantes.
+Antes da migração, o usuário confirmou conexão, reprodução e gravação de um trecho em Windows 11 25H2 com .NET 9. O gravador usado nesse teste ainda está por identificar. Na configuração do Audacity 4, foi possível trocar a entrada de microfone pelo loopback dos alto-falantes.
+
+Na validação local da versão 1.1.0, o SDK .NET 10.0.404 compilou a versão Release sem avisos nem erros e o pacote autossuficiente x64 abriu a janela principal. Um teste WPF com falha de busca simulada confirmou a remoção do item antigo, a liberação de **Atualizar**, a etapa e o HRESULT no diagnóstico e a exclusão de nomes, IDs e mensagens brutas. O mesmo teste confirmou a consulta do nome da saída padrão. A rodada Bluetooth com celular, a troca de saída e o teste em Windows limpo permanecem pendentes.
 
 Para repetir a validação:
 
@@ -44,7 +52,11 @@ Para repetir a validação:
 2. Selecione o celular, conecte e confirme que o áudio reproduzido nele toca no PC.
 3. Grave um trecho em cada gravador pelo [guia de uso](guia-de-uso.md). Pause o celular e confira se o trecho gravado tem o áudio esperado.
 4. Desconecte no app, reconecte e desligue o Bluetooth no celular durante a reprodução. Confira se a sessão encerra e a janela permite conectar novamente.
-5. Restabeleça a sessão e feche a janela enquanto o celular toca. Confirme que o áudio deixa de tocar no PC e que uma nova instância pode conectar.
+5. Cancele uma tentativa com **Desconectar**. Teste também a perda de alcance durante a reprodução. Restabeleça a sessão e feche a janela enquanto o celular toca. Confirme que o áudio para e que uma nova instância pode conectar.
+6. Troque a saída padrão em **Configurações → Sistema → Som** e confira se a indicação acompanha a mudança. Em caso de falha, use **Copiar diagnóstico** e confira a etapa, as versões e a ausência de nomes e IDs de dispositivos.
+7. Em um Windows de teste sem .NET Desktop Runtime 10, extraia o pacote x64 e repita o fluxo de conexão e reprodução como usuário padrão.
+
+Registre a versão do app, a edição e build do Windows, o adaptador Bluetooth, o sistema do celular, a saída usada e a versão de cada gravador. Para cada cenário, registre o resultado, a mensagem exibida e se foi possível recuperar a conexão.
 
 Se o NuGet não puder usar o cache padrão, defina o cache dentro da pasta do projeto apenas para a sessão atual do PowerShell:
 
